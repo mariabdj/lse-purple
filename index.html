@@ -53,11 +53,11 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            background: var(--bg-deep); /* Fallback */
+            background: var(--bg-deep);
         }
 
         /* =========================================
-           INTERACTIVE BACKGROUND
+           INTERACTIVE BACKGROUND (Constellations)
            ========================================= */
         .bg-container {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -66,29 +66,17 @@
             overflow: hidden;
         }
 
-        /* Cyber Grid */
-        .cyber-grid {
-            position: absolute; width: 200%; height: 200%;
-            top: -50%; left: -50%;
-            background-image: 
-                linear-gradient(rgba(108, 99, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(108, 99, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            transform: perspective(500px) rotateX(60deg);
-            animation: gridMove 20s linear infinite;
-            opacity: 0.3;
+        /* Constellation Canvas */
+        #constellation-canvas {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0.6;
         }
 
-        @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-            100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
-        }
-
-        /* Moving Orbs */
+        /* Moving Orbs (Preserved) */
         .orb {
             position: absolute; border-radius: 50%;
             filter: blur(80px); opacity: 0.5;
-            transition: transform 0.2s ease-out; /* Smooth mouse follow */
+            transition: transform 0.2s ease-out;
         }
         .orb-1 { 
             width: 600px; height: 600px; 
@@ -108,14 +96,27 @@
             100% { opacity: 0.6; transform: scale(1.1); }
         }
 
+        /* Fade out grid/background at footer */
+        .bg-container::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 200px;
+            background: linear-gradient(to top, var(--bg-deep) 10%, transparent);
+            pointer-events: none;
+        }
+
         /* =========================================
            HEADER & UI
            ========================================= */
         header {
             position: absolute; top: 0; left: 0; width: 100%;
             padding: 25px 5%;
-            display: flex; justify-content: flex-end; align-items: center;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 50;
+        }
+
+        .logo-img {
+            height: 50px; /* Adjust size as needed */
+            width: auto;
+            object-fit: contain;
         }
 
         .lang-switch {
@@ -222,13 +223,37 @@
             min-width: 90px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transition: transform 0.3s;
+            /* Added Shimmer Effect to cards */
+            position: relative;
+            overflow: hidden;
         }
         .widget:hover { transform: translateY(-5px); border-color: var(--primary); }
+        
+        /* Shimmer on cards */
+        .widget::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            animation: cardShine 6s infinite;
+        }
+        @keyframes cardShine {
+            0% { left: -150%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
+        }
 
         .time-val { 
             font-family: var(--font-head); font-weight: 700; 
             font-size: 2.2rem; color: white; line-height: 1; 
             text-shadow: 0 0 20px rgba(108, 99, 255, 0.5);
+            /* Added text shimmer to match title */
+            background: linear-gradient(110deg, #fff 40%, var(--accent) 50%, #fff 60%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: shine 5s linear infinite;
         }
         .time-label { 
             font-size: 0.75rem; font-weight: 600; text-transform: uppercase; 
@@ -346,11 +371,12 @@
             padding: 12px; 
             transition: transform 0.4s ease-out;
             transform-style: preserve-3d;
-        }
-        /* Hover Tilt */
-        .right-col:hover .iphone-frame {
+            /* PERMANENTLY TILTED AS REQUESTED */
             transform: rotateY(-5deg) rotateX(5deg) scale(1.02);
         }
+        
+        /* Removed the :hover requirement, but kept a subtle movement on hover if desired. 
+           Currently locked to the "hovered" position by default. */
         
         .notch {
             position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
@@ -412,6 +438,7 @@
             margin-top: auto; padding: 30px;
             text-align: center; font-size: 0.85rem; color: rgba(255,255,255,0.4);
             border-top: 1px solid rgba(255,255,255,0.05);
+            position: relative; z-index: 10;
         }
 
         /* =========================================
@@ -509,13 +536,16 @@
 
     <!-- INTERACTIVE BACKGROUND -->
     <div class="bg-container">
-        <div class="cyber-grid"></div>
+        <!-- New Constellation Canvas -->
+        <canvas id="constellation-canvas"></canvas>
         <div class="orb orb-1" id="orb1"></div>
         <div class="orb orb-2" id="orb2"></div>
     </div>
 
     <!-- HEADER -->
     <header>
+        <!-- LOGO ADDED HERE -->
+        <img src="images/logo ij school.png" alt="IJ School Logo" class="logo-img">
         <button id="lang-btn" class="lang-switch">FR</button>
     </header>
 
@@ -527,14 +557,16 @@
             <div class="left-col">
                 <div class="status-badge">
                     <div class="status-dot"></div>
-                    <span data-i18n="status">Coming Soon...</span>
+                    <!-- Updated Text -->
+                    <span data-i18n="status">Coming soon</span>
                 </div>
                 
+                <!-- Updated Title -->
                 <h1 class="hero-title" data-i18n="title">The Future Lab</h1>
                 
-                <!-- Rewritten text for intrigue -->
+                <!-- Updated Text -->
                 <p class="hero-text" data-i18n="subtitle">
-                    Something extraordinary is about to unfold. An experience that will redefine how you see technology, innovation, and your own potential.
+                    If you’re shaping the future of AI or entrepreneurship, Paris is where it happens this summer.
                 </p>
 
                 <!-- Desktop Countdown -->
@@ -561,16 +593,19 @@
                 <div class="form-card">
                     <form id="notifyForm">
                         <div class="input-wrapper">
+                            <!-- Updated Placeholder -->
                             <input type="email" id="email" placeholder="your@email.com" data-placeholder="form_placeholder" required>
                             <i data-lucide="mail" class="input-icon" size="18"></i>
                         </div>
                         
                         <div class="checkbox-group">
                             <input type="checkbox" id="consent" required>
-                            <label for="consent" data-i18n="form_consent">I hereby consent to receive news about Future Lab 2026.</label>
+                            <!-- Updated Consent Text -->
+                            <label for="consent" data-i18n="form_consent">i accept to receive news about the future lab...</label>
                         </div>
 
-                        <button type="submit" class="btn-submit" data-i18n="form_btn">NOTIFY ME</button>
+                        <!-- Updated Button Text -->
+                        <button type="submit" class="btn-submit" data-i18n="form_btn">Notify me</button>
                         <div id="form-message" style="display:none; color:var(--accent); margin-top:15px; font-weight:600; text-align:center;" data-i18n="form_success">Access Granted. Stand by.</div>
                     </form>
                 </div>
@@ -580,6 +615,7 @@
             <div class="right-col" id="scene">
                 <div class="visual-anchor"></div>
                 
+                <!-- iPhone Frame (Now permanently tilted in CSS) -->
                 <div class="iphone-frame">
                     <div class="notch"></div>
                     <div class="screen" id="phone-screen">
@@ -635,7 +671,77 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
 
-            // --- 1. MOUSE PARALLAX EFFECT (Interactive Background) ---
+            // --- 0. CONSTELLATION ANIMATION (Canvas) ---
+            const canvas = document.getElementById('constellation-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let stars = [];
+
+            function initCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                createStars();
+            }
+
+            function createStars() {
+                stars = [];
+                const count = Math.floor(width * height / 12000); // Density
+                for(let i=0; i<count; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        radius: Math.random() * 2,
+                        alpha: Math.random()
+                    });
+                }
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = "rgba(108, 99, 255, 0.2)"; // Purple tint lines
+                ctx.lineWidth = 0.5;
+
+                for(let i=0; i<stars.length; i++) {
+                    let s = stars[i];
+                    // Move
+                    s.x += s.vx;
+                    s.y += s.vy;
+                    // Bounce
+                    if(s.x < 0 || s.x > width) s.vx *= -1;
+                    if(s.y < 0 || s.y > height) s.vy *= -1;
+
+                    // Draw Star
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+                    ctx.fill();
+
+                    // Connect
+                    for(let j=i+1; j<stars.length; j++) {
+                        let s2 = stars[j];
+                        let dist = Math.hypot(s.x - s2.x, s.y - s2.y);
+                        if(dist < 100) {
+                            ctx.beginPath();
+                            ctx.moveTo(s.x, s.y);
+                            ctx.lineTo(s2.x, s2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(drawStars);
+            }
+
+            window.addEventListener('resize', initCanvas);
+            initCanvas();
+            drawStars();
+
+
+            // --- 1. MOUSE PARALLAX EFFECT (Orbs) ---
             const orb1 = document.getElementById('orb1');
             const orb2 = document.getElementById('orb2');
             
@@ -648,27 +754,27 @@
                 orb2.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
             });
 
-            // --- 2. TRANSLATIONS (Updated for Mystery/Hype) ---
+            // --- 2. TRANSLATIONS (Updated) ---
             const translations = {
                 en: {
-                    status: "System Loading...",
+                    status: "Coming soon",
                     title: "The Future Lab",
-                    subtitle: "Something extraordinary is about to unfold. An experience that will redefine how you see technology, innovation, and your own potential.",
+                    subtitle: "If you’re shaping the future of AI or entrepreneurship, Paris is where it happens this summer.",
                     form_placeholder: "your@email.com",
-                    form_consent: "I hereby consent to receive news about Future Lab 2026.",
-                    form_btn: "NOTIFY ME",
+                    form_consent: "i accept to receive news about the future lab...",
+                    form_btn: "Notify me",
                     form_success: "Access Granted. Stand by.",
                     footer: "System Active. All rights reserved.",
                     days: "Days", hours: "Hrs", minutes: "Min", seconds: "Sec",
                     close: "Close Protocol"
                 },
                 fr: {
-                    status: "à venir...",
-                    title: "The Future Lab",
-                    subtitle: "Quelque chose d'extraordinaire est sur le point de se révéler. Une expérience qui redéfinira votre vision de la technologie, de l'innovation et de votre propre potentiel.",
+                    status: "Bientôt disponible",
+                    title: "Le Laboratoire du Futur",
+                    subtitle: "Si vous façonnez l'avenir de l'IA ou de l'entrepreneuriat, c'est à Paris que ça se passe cet été.",
                     form_placeholder: "votre@email.com",
-                    form_consent: "Je consens à recevoir les nouveautés, Future Lab 2026.",
-                    form_btn: "Me Notifier",
+                    form_consent: "J'accepte de recevoir des nouvelles du future lab...",
+                    form_btn: "Informez-moi",
                     form_success: "Accès Autorisé. Veuillez patienter.",
                     footer: "Système Actif. Tous droits réservés.",
                     days: "Jours", hours: "H", minutes: "Min", seconds: "Sec",
